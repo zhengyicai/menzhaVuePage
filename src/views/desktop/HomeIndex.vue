@@ -1,5 +1,5 @@
 <template>
-    <p class="page-container">欢迎来到声波门禁管理系统~</p>
+    <p class="page-container">欢迎来到智能门禁管理平台~</p>
 </template>
 
 <style lang="scss" scoped>

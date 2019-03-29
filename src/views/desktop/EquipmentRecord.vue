@@ -1,6 +1,6 @@
 <template> 
  <div class="block">   
-	 	<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+	 	<!-- <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true">
 				<el-form-item style="width:300px">
 					<el-input v-model="page.criteria" @keyup.enter.native="query"   placeholder="请输入[姓名|手机号]" style="width:300px"></el-input>
@@ -11,7 +11,7 @@
                
 				
 			</el-form>
-		</el-col>
+		</el-col> -->
         <!-- <el-col :span="4" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true">
 				
@@ -22,7 +22,7 @@
 		</el-col> -->
       
         
-		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%; margin-top:20px">
 		
 			
 			<el-table-column prop="name" label="姓名" width="120" sortable>
@@ -31,14 +31,12 @@
 			</el-table-column>
 			<el-table-column prop="communityName" label="所属小区" width="150" sortable>
 			</el-table-column>
-			<el-table-column  label="创建时间" min-width="170">
+            <el-table-column prop="equipmentNo" label="设备编号" width="150" sortable>
+			</el-table-column>
+			<el-table-column  label="创建时间" min-width="120">
 				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
 			</el-table-column>
-
-            <el-table-column  label="生效时间" min-width="170">
-				<template slot-scope="scope">{{ scope.row.lastTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
-			</el-table-column>
-            <el-table-column prop="wxId" label="微信" width="330" sortable>
+            <el-table-column prop="wxId" label="微信" width="300" sortable>
 			</el-table-column>
             <!-- <el-table-column prop="imgUrl" label="图片地址" width="170" sortable>
 			</el-table-column>
@@ -48,27 +46,26 @@
 			</el-table-column>
             <el-table-column prop="identityNo" label="身份证编号" width="170" sortable>
 			</el-table-column> -->
-			
 			<el-table-column  label="状态" min-width="120">
-				<template slot-scope="scope">{{ state(scope.row.state)}}</template>
+				<template slot-scope="scope">{{recordType(scope.row.state)}}</template>
 			</el-table-column>
             <el-table-column prop="remark" label="留言" width="170" sortable>
 			</el-table-column>
 			
 			
-			<el-table-column label="操作" min-width="250">
+			<el-table-column label="操作" min-width="70">
 				<template scope="scope">
 				<!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button>
                 <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
-                <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
-                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button>
+                <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">查看开锁图片</el-button>
+                <!-- <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
                 <!-- <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button> -->
                 <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
-                <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
+                <!-- <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
                 <el-button size="small" type="success" v-if="scope.row.state==='20'" @click="updateState(scope.row,'10')" >启用</el-button>
-                <el-button size="small" type="info" v-if="scope.row.state==='30'"  @click="updateState(scope.row,'10')">授权</el-button>
+                <el-button size="small" type="info" v-if="scope.row.state==='30'"  @click="updateState(scope.row,'10')">授权</el-button> -->
 				</template>
 			</el-table-column>
 		</el-table>
@@ -84,22 +81,7 @@
 		</el-pagination>
 
         <el-dialog   :title="formtitle" :visible.sync="dialogFormVisibleEqu" >
-			<el-table :data="residRooms" highlight-current-row style="width: 100%;">
-                    <el-table-column prop="buildingName" label="楼栋" width="100" sortable>
-                    </el-table-column>
-                    <el-table-column prop="unitName" label="单元" width="100" sortable>
-                    </el-table-column>
-                    <el-table-column prop="roomName" label="房间" width="100" sortable>
-                    </el-table-column>
-                    <el-table-column label="户主" width="100" sortable>
-                            <template slot-scope="scope">{{ scope.row.owner =='10'?'是':'否'}}</template>
-                    </el-table-column>
-                    <el-table-column  label="操作" min-width="120" sortable>
-                         <!-- <template slot-scope="scope"><el-button size="small" type="danger" @click="deleteItem(scope.row)">删除</el-button></template> -->
-                        
-                    </el-table-column>
-                    
-            </el-table>
+			
 			
         </el-dialog>
 
@@ -108,17 +90,8 @@
           
             <el-row>
                 <el-col :span="24" style="font-size:14px;">
-                    <el-card header="小区设备">
-                            <table>
-                            <label style="font-weight:bold"><input type="checkbox" :checked="choOne"  @click="isSelectedOne($event)"/>全选</label>
-                            <tr style="text-align:left">
-                                <td >
-                                    <label :label="m.id" :key="m.id"  v-for=" m in parentMenuOneData" style="margin-right:10px;width:120px" > <input type="checkbox"  v-model="selectedOneData" :value="m.id"/>{{m.equipmentName}}  </label>
-                                </td>
-                            </tr>
-                            <br/>    
-                            
-                        </table>
+                    <el-card>
+                           <img :src="imgurl" style="width:100%;height:100%;">
                     </el-card>
                 </el-col>
             
@@ -170,15 +143,18 @@
 	import { url } from '../../api/api';
 	import {timeFormat} from '../../api/format';
 	import {dateFormat} from '../../api/format';
-	import {state} from '../../api/format';
-	import { PageSize } from '../../api/api';
+    import {state} from '../../api/format';
+    import {recordType} from '../../api/format';
+    
+    import { PageSize } from '../../api/api';
 	import moment from 'moment';
   	export default {
 	  
     methods: {
 	  dateFormat,	
 	  timeFormat,
-	  state,	
+      state,	
+      recordType,
       handleSizeChange(val) {
 		console.log(`每页 ${val} 条`);
 		
@@ -472,42 +448,16 @@
        edit(index, rows){
             this.isEdit = true;
             this.dialogFormVisibleEqu = true;
-		    this.formtitle ="添加设备";   
+		    this.formtitle ="查看开锁图片";   
            
             this.residentId = rows.id;
+            this.imgurl = "http://www.zhcloudshare.com/uploadImages/"+rows.imgUrl;
             
             this.updateDate = true; 
-            RequestGet("/equipment/findCommunitys",{}).then(response => {
-						if(response.code == '0000'){
-                            this.selectedOneData = [];
-                            this.selectedTwoData = [];
-
-                            
-                            RequestGet("/user/residentEquipmentFindAll",{residentId:rows.id,communityId:sessionStorage.getItem("communityId")}).then(response => {
-                                     for(var i= 0;i<response.data.length;i++){
-                              
-                                        this.selectedOneData.push(response.data[i].equipmentId);
-                                    
-                                    }
-
-
-                            }).catch(error => {
-                                   this.$router.push({ path: '/login' });
-                                            
-                            })   
-                           
-                             
-							
-						 }
-                        
-            }).catch(error => {
-                            this.$router.push({ path: '/login' });
-                            
-            })
+           
 
 
 
-            this.loadMenus();
         
 
       },
@@ -594,7 +544,14 @@
       },
 	loadData(){
 
-		RequestGet("/resident/residentList",this.page).then(response => {
+         if(sessionStorage.getItem("userId") == "66b7ef552d9e4e4599e853c7d6101373"){
+            this.page.communityId ="";        
+         }else{
+            this.page.communityId = sessionStorage.getItem("communityId");
+         }
+
+
+		RequestGet("/resident/useEquRecord",this.page).then(response => {
 						if(response.code == '0000'){
 								 this.datalist = response.data;
 								 this.total = response.page.totalCount; 
@@ -631,7 +588,7 @@
 		currentPage:1,
 		page:{
 			pageSize:PageSize,   //一页显示的条数
-            criteria:''
+            communityId:''
         },
         formtitle:"用户住房信息",
         datalist:[],
@@ -657,6 +614,7 @@
         userEquipmentList:[],
         residentId:"",
         updateDate:false,
+        imgurl:"",
 
 
         // 房卡

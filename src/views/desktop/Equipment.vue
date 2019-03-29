@@ -28,19 +28,19 @@
 		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
 		
 			
-			<el-table-column prop="equipmentId" label="设备编号" width="150" sortable>
+			<el-table-column prop="equNo" label="设备编号" width="200" sortable>
 			</el-table-column>
-			<el-table-column prop="equipmentName" label="设备名称" width="150" sortable>
+			<el-table-column prop="equipmentName" label="设备名称" width="200" sortable>
 			</el-table-column>
-			<el-table-column prop="communityName" label="所属小区" width="150" sortable>
+			<el-table-column prop="communityName" label="所属小区" width="200" sortable>
 			</el-table-column>
-			<el-table-column prop="buildingName" label="楼栋" width="150" sortable>
+			<!-- <el-table-column prop="buildingName" label="楼栋" width="150" sortable>
+			</el-table-column> -->
+            <el-table-column prop="equId" label="序列号" width="200" sortable>
 			</el-table-column>
-            <el-table-column prop="equId" label="序列号" width="150" sortable>
-			</el-table-column>
-			<el-table-column  label="单元" min-width="150" sortable>
+			<!-- <el-table-column  label="单元" min-width="150" sortable>
                             <template slot-scope="scope">{{scope.row.unitName}} <span v-if="scope.row.unitName!='' && scope.row.unitName!=null ">单元</span></template>    
-			</el-table-column>
+			</el-table-column> -->
 			<el-table-column  label="状态" min-width="120">
 				<template slot-scope="scope">{{ state(scope.row.state)}}</template>
 			</el-table-column>
@@ -59,7 +59,7 @@
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button> -->
                 <el-button size="small" type="danger" v-if="false" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
-                <el-button size="small" type="warning" @click="updateRow(scope.$index, scope.row)">替换</el-button>
+                <!-- <el-button size="small" type="warning" @click="updateRow(scope.$index, scope.row)">替换</el-button> -->
 				</template>
 			</el-table-column>
 		</el-table>
@@ -76,11 +76,18 @@
 
         <el-dialog   :title="formtitle" :visible.sync="dialogFormVisible" >
 			<el-form ref="subData" :model="subData" label-width="100px" @submit.prevent="onSubmit" style="margin:20px;">
-                    <el-form-item label="设备类型">
+                    
+                    <!-- <el-form-item label="设备类型">
                        <el-select  v-model="subData.equipmentType" placeholder="请选择设备类型" @change="selectEquType(subData.equipmentType)">
                            <el-option :label="item.label" :key="item.value" :value="item.value" v-for="item in options">{{item.label}}</el-option>
 					    </el-select>
-                    </el-form-item>    
+                    </el-form-item>  -->
+
+                       
+
+                      <el-form-item label="*设备编号">
+                        <el-input v-model="subData.equNo" type="number"  placeholder="请输入6位设备编号"></el-input>
+                    </el-form-item>
                     <el-form-item label="*设备名称">
                         <el-input v-model="subData.equipmentName"  placeholder="请输入设备名称"></el-input>
                     </el-form-item>
@@ -90,19 +97,10 @@
                            <el-option :label="item.name" :key="item.value" :value="item.value" v-for="item in communitys">{{item.name}}</el-option>
 					    </el-select>
                     </el-form-item>
-                    <el-form-item label="楼栋">
-                        <el-select  v-bind:disabled="isEdit"   v-model="subData.buildingId" placeholder="请选择单元" @change="selectBuild(subData.buildingId)">
-                           <el-option :label="item.name" :key="item.value" :value="item.value" v-for="item in buildings">{{item.name}}</el-option>
-					    </el-select>
-                    </el-form-item>
-                    <el-form-item    label="单元">
-                        <el-select  v-bind:disabled="isEdit"  v-model="subData.unitName" placeholder="请选择单元" @change="selectUnit(subData.unitName)">
-                           <el-option :label="item.name" :key="item.value" :value="item.value" v-for="item in units">{{item.name}}</el-option>
-					    </el-select>
-                    </el-form-item>
-                    <el-form-item label="*设备序列号">
+                   
+                    <!-- <el-form-item label="*设备序列号">
                         <el-input  v-model="subData.equId"  placeholder="请输入设备序列号后8位"></el-input>
-                    </el-form-item>
+                    </el-form-item> -->
                     <el-form-item label="状态">
 					<el-radio-group v-model="subData.state">
 						<el-radio label="10">正常</el-radio>
@@ -200,7 +198,9 @@
                 buildingId:this.buildingId,
                 unitName:this.unitNo,
                 equCode:"",
-                equId:""
+                equId:"",
+                equNo:""
+                
             };
 
 
@@ -214,6 +214,7 @@
           }
           this.subData.equCode = this.subData.equipmentType =="10"?"0000000000":this.subData.equipmentType =="20"?"0000000000":"FFFF000000";
           this.subData.equId = this.communityNo+this.subData.equId;
+          
           RequestPost("/equipment/add",this.subData).then(response => {
 						
 						//this.logining = false; 
@@ -505,6 +506,14 @@
         
     },
     validate(){
+        if(this.subData.equNo.trim()=="" || this.subData.equNo == null){
+            this.$message({
+                type: 'error',
+                message: '设备编号不能为空'
+            });         
+            return false;
+        }
+        
         if(this.subData.equipmentName.trim()=="" || this.subData.equipmentName == null){
             this.$message({
                 type: 'error',
@@ -521,22 +530,15 @@
             return false;
         }
 
-        if(this.subData.equId.trim()=="" || this.subData.equId == null){
+        if(this.subData.equNo.trim().length>6){
             this.$message({
                 type: 'error',
-                message: '设备序列号不能为空'
+                message: '请输入6位设备序列号'
             });         
             return false;
         }
 
-        if(this.subData.equId.trim().length!=8){
-            this.$message({
-                type: 'error',
-                message: '请输入设备序列号后8位'
-            });         
-            return false;
-        }
-
+        
 
 
     },

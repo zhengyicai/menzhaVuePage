@@ -82,12 +82,12 @@
 				<el-form-item label="*小区名字">
 					<el-input v-model="form.communityName"></el-input>
 				</el-form-item>
-				<el-form-item label="*主机数">
+				<!-- <el-form-item label="*主机数">
 					<el-input type="number" v-model="form.masterNum"></el-input>
 				</el-form-item>
 				<el-form-item label="*用户数">
 					<el-input type="number" v-model="form.userNum"></el-input>
-				</el-form-item>
+				</el-form-item> -->
 				<el-form-item label="省" >
 					<el-select  v-model="form.provinceCode" placeholder="请选择省份" @change="selectProvince(form.provinceCode)">
 						<el-option :label="item.name" :key="item.code" :value="item.code" v-for="item in provinces">{{item.name}}</el-option>
@@ -139,7 +139,7 @@
 					<el-input placeholder="请输入密码" v-model="form1.password"></el-input>
 				</el-form-item>
 				<el-form-item label="手机号">
-					<el-input placeholder="请输入密码" v-model="form1.mobile"></el-input>
+					<el-input placeholder="请输入手机号" v-model="form1.mobile"></el-input>
 				</el-form-item>
 				<el-form-item label="状态">
 					<el-radio-group v-model="form1.state">
@@ -746,20 +746,20 @@
 				});    
 				return false;				
 		}
-		if(this.form.masterNum <=0 || this.form.masterNum == null){
-				this.$message({
-					type: 'error',
-					message: "主机数不能小于1"
-				});
-				return false;
-		}
-		if(this.form.userNum <=0 || this.form.userNum == null){
-				this.$message({
-					type: 'error',
-					message: "用户数不能小于1"
-				});
-				return false;
-		}
+		// if(this.form.masterNum <=0 || this.form.masterNum == null){
+		// 		this.$message({
+		// 			type: 'error',
+		// 			message: "主机数不能小于1"
+		// 		});
+		// 		return false;
+		// }
+		// if(this.form.userNum <=0 || this.form.userNum == null){
+		// 		this.$message({
+		// 			type: 'error',
+		// 			message: "用户数不能小于1"
+		// 		});
+		// 		return false;
+		// }
 		if(this.form.provinceCode.trim().length ==0 || this.form.provinceCode == null){
 				this.$message({
 					type: 'error',

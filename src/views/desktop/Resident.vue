@@ -25,7 +25,7 @@
 		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
 		
 			
-			<el-table-column prop="name" label="姓名" width="150" sortable>
+			<el-table-column prop="name" label="姓名" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="mobile" label="手机号" width="150" sortable>
 			</el-table-column>
@@ -34,6 +34,20 @@
 			<el-table-column  label="创建时间" min-width="170">
 				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
 			</el-table-column>
+
+            <el-table-column  label="生效时间" min-width="170">
+				<template slot-scope="scope">{{ scope.row.lastTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
+			</el-table-column>
+            <el-table-column prop="wxId" label="微信" width="330" sortable>
+			</el-table-column>
+            <!-- <el-table-column prop="imgUrl" label="图片地址" width="170" sortable>
+			</el-table-column>
+            <el-table-column prop="fingerUrl" label="指纹地址" width="170" sortable>
+			</el-table-column>
+            <el-table-column prop="identityId" label="身份证id" width="170" sortable>
+			</el-table-column>
+            <el-table-column prop="identityNo" label="身份证编号" width="170" sortable>
+			</el-table-column> -->
 			
 			<el-table-column  label="状态" min-width="120">
 				<template slot-scope="scope">{{ state(scope.row.state)}}</template>
@@ -48,9 +62,10 @@
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button>
                 <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
-
-                <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button>
-                <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button>
+                <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
+                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button>
+                <!-- <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button> -->
+                <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
                 <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
                 <el-button size="small" type="success" v-if="scope.row.state==='20'" @click="updateState(scope.row,'10')" >启用</el-button>
                 <el-button size="small" type="info" v-if="scope.row.state==='30'"  @click="updateState(scope.row,'10')">授权</el-button>
@@ -68,7 +83,7 @@
 		>
 		</el-pagination>
 
-        <el-dialog   :title="formtitle" :visible.sync="dialogFormVisible" >
+        <el-dialog   :title="formtitle" :visible.sync="dialogFormVisibleEqu" >
 			<el-table :data="residRooms" highlight-current-row style="width: 100%;">
                     <el-table-column prop="buildingName" label="楼栋" width="100" sortable>
                     </el-table-column>
@@ -87,6 +102,62 @@
             </el-table>
 			
         </el-dialog>
+
+
+         <el-dialog   :title="formtitle" :visible.sync="dialogFormVisibleEqu" width="70%" >
+          
+            <el-row>
+                <el-col :span="24" style="font-size:14px;">
+                    <el-card header="小区设备">
+                            <table>
+                            <label style="font-weight:bold"><input type="checkbox" :checked="choOne"  @click="isSelectedOne($event)"/>全选</label>
+                            <tr style="text-align:left">
+                                <td >
+                                    <label :label="m.id" :key="m.id"  v-for=" m in parentMenuOneData" style="margin-right:10px;width:120px" > <input type="checkbox"  v-model="selectedOneData" :value="m.id"/>{{m.equipmentName}}  </label>
+                                </td>
+                            </tr>
+                            <br/>    
+                            
+                        </table>
+                    </el-card>
+                </el-col>
+            
+            </el-row>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogFormVisibleEqu = false">取 消</el-button>
+				<el-button type="primary" @click="addCho()">确 定</el-button>
+			</div>
+        </el-dialog>
+
+
+
+
+         <el-dialog   title="房卡管理" :visible.sync="dialogFormVisibleRoom" >
+			<el-form ref="subData" :model="subData1" label-width="100px" @submit.prevent="onSubmit" style="margin:0px;">
+                <el-form-item label="卡号1">
+                        <el-input style="width:60%"  v-model="one" type="number" placeholder="请输入10位数的卡号"></el-input>
+                </el-form-item>
+                <el-form-item label="卡号2">
+                        <el-input style="width:60%" v-model="two"  placeholder="请输入10位数的卡号"></el-input>
+                </el-form-item>
+                <el-form-item label="卡号3">
+                        <el-input style="width:60%"  v-model="three"  placeholder="请输入10位数的卡号"></el-input>
+                </el-form-item>
+                <el-form-item label="卡号4">
+                        <el-input style="width:60%"  v-model="four"  placeholder="请输入10位数的卡号"></el-input>
+                </el-form-item>
+                <el-form-item label="卡号5">
+                        <el-input style="width:60%" v-model="free"  placeholder="请输入10位数的卡号"></el-input>
+                </el-form-item>
+               
+                   
+			</el-form>	
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogFormVisibleRoom = false">取 消</el-button>
+				<el-button  type="primary" @click="open1()">确 定</el-button>
+			</div>
+        </el-dialog>
+
 
 		 
 
@@ -218,6 +289,118 @@
 
 
       },
+      open1(){
+         
+        this.subData1= {}; 
+        this.subData1.remark = this.one+","+this.two+","+this.three+","+this.four+","+this.free;  
+        this.subData1.residentId = this.residentId;
+        RequestPost("/resident/addCard",this.subData1).then(response => {
+                    if(response.code=='0000'){
+                        this.$message({
+                            message: response.message,
+                            type: 'success'
+                        });  
+                        this.dialogFormVisibleRoom = false;
+                    }else{
+                        this.$message({
+                            message: response.message,
+                            type: 'error'
+                        });
+                    }
+                    //this.loadData();
+                    //this.communityId = this.subData.communityId;
+                    //this.loadCommunityData();
+        }).catch(error => {
+        this.$router.push({ path: '/login' });
+        })
+
+    },
+      updateRoom(rows){
+         
+         this.subData1 = {};
+         this.subData = rows;
+
+         this.one = "";
+         this.two = "";
+         this.three = "";
+         this.four = "";
+         this.free = "";
+         this.residentId = rows.id;
+
+       
+         RequestGet("/resident/findResidentCount",{residentId:this.residentId}).then(response => {
+            if(response.code == '0000'){
+                    if(response.data == 0){
+                        this.dialogFormVisibleRoom = false;    
+                        this.$message({
+								message: "请先授权设备",
+								type: 'error'
+						});  
+                    }else{
+                        this.dialogFormVisibleRoom = true;    
+                    }
+            }
+					
+        }).catch(error => {
+                        this.$router.push({ path: '/login' });
+                        
+        })
+
+     
+         //this.subData1.roomId  = rows.id;
+     
+
+
+         RequestGet("/resident/findCard",{residentId:rows.id}).then(response => {
+                    if(response.code=='0000'){
+                          if(response.data.length>0){
+                              for(var i = 0 ;i<response.data.length;i++){
+                                    if(i ==0){
+                                      this.one = response.data[i].cardNo+"";
+                                  }else if(i ==1){
+                                      this.two = response.data[i].cardNo+"";
+                                  }else if(i ==2){
+                                      this.three = response.data[i].cardNo+"";
+                                  }else if(i ==3){
+                                      this.four = response.data[i].cardNo+"";
+                                  }else if(i ==4){
+                                      this.free = response.data[i].cardNo+"";
+                                  }
+                              }
+                          }
+                          
+
+
+                    }else{
+                        this.$message({
+                            message: response.message,
+                            type: 'error'
+                        });
+                    }
+                // this.loadCommunityData();
+        }).catch(error => {
+        this.$router.push({ path: '/login' });
+        })
+         
+
+    },  
+      
+      isSelectedOne(e){
+          this.selectedOneData = [];
+            var cho = e.target.checked;  //判断是否选中
+            
+            if(cho){
+                for(var i = 0 ;i<this.parentMenuOneData.length;i++){
+                    this.selectedOneData.push(this.parentMenuOneData[i].id);
+                }
+                this.choOne = true;
+              
+            }else{
+              
+                this.selectedOneData=[];
+                this.choOne = false;
+            }
+      },
       open(){
           RequestPost("/equipment/add",this.subData).then(response => {
 						
@@ -286,9 +469,129 @@
             });          
             });
       },
-     
+       edit(index, rows){
+            this.isEdit = true;
+            this.dialogFormVisibleEqu = true;
+		    this.formtitle ="添加设备";   
+           
+            this.residentId = rows.id;
+            
+            this.updateDate = true; 
+            RequestGet("/equipment/findCommunitys",{}).then(response => {
+						if(response.code == '0000'){
+                            this.selectedOneData = [];
+                            this.selectedTwoData = [];
 
-	
+                            
+                            RequestGet("/user/residentEquipmentFindAll",{residentId:rows.id,communityId:sessionStorage.getItem("communityId")}).then(response => {
+                                     for(var i= 0;i<response.data.length;i++){
+                              
+                                        this.selectedOneData.push(response.data[i].equipmentId);
+                                    
+                                    }
+
+
+                            }).catch(error => {
+                                   this.$router.push({ path: '/login' });
+                                            
+                            })   
+                           
+                             
+							
+						 }
+                        
+            }).catch(error => {
+                            this.$router.push({ path: '/login' });
+                            
+            })
+
+
+
+            this.loadMenus();
+        
+
+      },
+     /* 
+       * 加载菜单
+    */
+    loadMenus(){
+        this.page.pageSize=9999;   
+        RequestGet("/equipment/findAll",this.page).then(response => {
+						if(response.code == '0000'){
+                              //this.parentMenuOneData = response.data;
+                             this.parentMenuOneData = [];
+                             this.parentMenuTwoData = [];
+                              for(var i= 0;i<response.data.length;i++){
+                                 // if(response.data[i].equipmentType=='20'){
+                                      this.parentMenuOneData.push(response.data[i]);
+                                //   }else{
+                                //       this.parentMenuTwoData.push(response.data[i]);
+                                   
+                                //   }
+                              }
+							// 	 this.datalist = response.data;
+							// 	 this.total = response.page.totalCount; 
+                            // 	 this.totalsize  = response.page.pageSize;
+                            this.page.pageSize = PageSize;  //一页显示的条数
+						 }
+					
+		}).catch(error => {
+						 this.$router.push({ path: '/login' });
+						
+		})  
+      
+    },  
+	 addCho(){
+            
+            
+            this.subData1.choId = this.selectedOneData; 
+            this.subData1.communityId = sessionStorage.getItem("communityId");
+            this.subData1.userId = sessionStorage.getItem("userId");
+            this.subData1.id = this.residentId;
+            if(!this.updateDate){
+                RequestPost("/user/addResidentEquipment",this.subData1).then(response => {
+                            if(response.code=='0000'){
+                                this.$message({
+                                    message: response.message,
+                                    type: 'success'
+                                });  
+                                this.dialogFormVisibleEqu = false;
+                            }else{
+                                this.$message({
+                                    message: response.message,
+                                    type: 'error'
+                                });
+                            }
+                            this.loadData();
+                }).catch(error => {
+                this.$router.push({ path: '/login' });
+                })
+            }else{
+                RequestPost("/user/updateResidentEquipment",this.subData1).then(response => {
+                            if(response.code=='0000'){
+                                this.$message({
+                                    message: response.message,
+                                    type: 'success'
+                                });  
+                                 this.dialogFormVisibleEqu = false;
+                            }else{
+                                this.$message({
+                                    message: response.message,
+                                    type: 'error'
+                                });
+                            }
+                            this.loadData();
+                }).catch(error => {
+                this.$router.push({ path: '/login' });
+                })
+            }
+
+             
+
+
+              
+
+      },
 	loadData(){
 
 		RequestGet("/resident/findAll",this.page).then(response => {
@@ -340,6 +643,51 @@
         subData:{},
         isEdit:true, //是否禁用
         dialogFormVisible:false,
+        dialogFormVisibleEqu:false,  //显示设备列表
+        
+        parentMenuOneData:[],
+        parentMenuTwoData:[],
+        selectedTwoData:[],
+        selectedOneData:[],
+        selectedTwoDataAll:[],
+        selectedOneDataAll:[],
+        choTwo:false,
+        choOne:false,
+        subData1:{},
+        userEquipmentList:[],
+        residentId:"",
+        updateDate:false,
+
+
+        // 房卡
+        dialogFormVisibleRoom:false,
+        dialogFormVisibleRoomDevice:false,
+        one:"",
+        two:"",
+        three:"",
+        four:"",
+        free:"",
+        
+        oneId:"",
+        twoId:"",
+        threeId:"",
+        fourId:"",
+        freeId:"",
+        
+        roomNo:"",
+        roomId:"",
+        
+        oneOld:"",
+        twoOld:"",
+        threeOld:"",
+        fourOld:"",
+        freeOld:"",
+
+        oneSum:false,
+        twoSum:false,
+        threeSum:false,
+        fourSum:false,
+        freeSum:false,
        
       };
     }

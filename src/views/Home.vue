@@ -78,7 +78,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'声波门禁管理系统',
+				sysName:'智能门禁管理平台',
 				sysNo:'v1.0.0',
 				collapsed:false,
 				sysUserName: '',
